@@ -1,4 +1,4 @@
-import { View, StyleSheet, Modal, TextInput, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Modal, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import { X } from 'lucide-react-native';
 import { ThemedText } from './ThemedText';
 import { Button } from './Button';
@@ -46,6 +46,7 @@ export function PinModal({ visible, onClose, onSuccess, title = "Enter PIN" }: P
         if (index === 3 && value) {
             const fullPin = [...newPin].join('');
             if (fullPin.length === 4) {
+                Keyboard.dismiss();
                 // Mock PIN verification (in real app, verify against stored PIN)
                 setTimeout(() => {
                     onSuccess();

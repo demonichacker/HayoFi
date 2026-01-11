@@ -1,4 +1,4 @@
-import { View, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, User, Search } from 'lucide-react-native';
@@ -30,50 +30,61 @@ export default function SendScreen() {
                 <View style={{ width: 24 }} />
             </View>
 
-            <View style={styles.content}>
-                <ThemedText style={[styles.label, { color: colors.textSecondary }]}>To</ThemedText>
-                <View style={[styles.inputGroup, { backgroundColor: colors.surface }]}>
-                    <Search size={20} color={colors.textSecondary} />
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={styles.content}>
+                    <ThemedText style={[styles.label, { color: colors.textSecondary }]}>To</ThemedText>
+                    <View style={[styles.inputGroup, { backgroundColor: colors.surface }]}>
+                        <Search size={20} color={colors.textSecondary} />
+                        <TextInput
+                            style={[styles.recipientInput, { color: colors.text }]}
+                            placeholder="Username, Tag, or Phone"
+                            placeholderTextColor={colors.textSecondary}
+                            value={recipient}
+                            onChangeText={setRecipient}
+                        />
+                    </View>
+
+                    {recentContacts.length > 0 && !recipient && (
+                        <View style={styles.contacts}>
+                            {recentContacts.map(contact => (
+                                <TouchableOpacity
+                                    key={contact.id}
+                                    style={styles.contactItem}
+                                    onPress={() => {
+                                        setRecipient(contact.tag);
+                                        Keyboard.dismiss();
+                                    }}
+                                >
+                                    <View style={[styles.avatar, { backgroundColor: isDark ? '#333' : '#eee' }]}>
+                                        <ThemedText style={{ fontWeight: 'bold' }}>{contact.name[0]}</ThemedText>
+                                    </View>
+                                    <ThemedText style={styles.contactName}>{contact.name}</ThemedText>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    )}
+
+                    <ThemedText style={[styles.label, { color: colors.textSecondary, marginTop: 32 }]}>Amount</ThemedText>
                     <TextInput
-                        style={[styles.recipientInput, { color: colors.text }]}
-                        placeholder="Username, Tag, or Phone"
+                        style={[styles.amountInput, { color: colors.text, borderColor: colors.primary }]}
+                        placeholder="₦0.00"
                         placeholderTextColor={colors.textSecondary}
-                        value={recipient}
-                        onChangeText={setRecipient}
+                        keyboardType="numeric"
+                        value={amount}
+                        onChangeText={setAmount}
+                    />
+
+                    <View style={styles.spacer} />
+
+                    <Button
+                        title={`Send ₦${amount || '0.00'}`}
+                        onPress={() => {
+                            Keyboard.dismiss();
+                            router.back();
+                        }}
                     />
                 </View>
-
-                {recentContacts.length > 0 && !recipient && (
-                    <View style={styles.contacts}>
-                        {recentContacts.map(contact => (
-                            <TouchableOpacity
-                                key={contact.id}
-                                style={styles.contactItem}
-                                onPress={() => setRecipient(contact.tag)}
-                            >
-                                <View style={[styles.avatar, { backgroundColor: isDark ? '#333' : '#eee' }]}>
-                                    <ThemedText style={{ fontWeight: 'bold' }}>{contact.name[0]}</ThemedText>
-                                </View>
-                                <ThemedText style={styles.contactName}>{contact.name}</ThemedText>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                )}
-
-                <ThemedText style={[styles.label, { color: colors.textSecondary, marginTop: 32 }]}>Amount</ThemedText>
-                <TextInput
-                    style={[styles.amountInput, { color: colors.text, borderColor: colors.primary }]}
-                    placeholder="₦0.00"
-                    placeholderTextColor={colors.textSecondary}
-                    keyboardType="numeric"
-                    value={amount}
-                    onChangeText={setAmount}
-                />
-
-                <View style={styles.spacer} />
-
-                <Button title={`Send ₦${amount || '0.00'}`} onPress={() => router.back()} />
-            </View>
+            </TouchableWithoutFeedback>
         </SafeAreaView>
     );
 }

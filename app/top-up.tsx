@@ -1,4 +1,4 @@
-import { View, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, CreditCard, Banknote } from 'lucide-react-native';
@@ -24,56 +24,70 @@ export default function TopUpScreen() {
                 <View style={{ width: 24 }} />
             </View>
 
-            <View style={styles.content}>
-                <ThemedText style={[styles.label, { color: colors.textSecondary }]}>Enter Amount (₦)</ThemedText>
-                <TextInput
-                    style={[styles.input, { color: colors.text, borderColor: colors.primary }]}
-                    placeholder="0.00"
-                    placeholderTextColor={colors.textSecondary}
-                    keyboardType="numeric"
-                    value={amount}
-                    onChangeText={setAmount}
-                    autoFocus
-                />
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={styles.content}>
+                    <ThemedText style={[styles.label, { color: colors.textSecondary }]}>Enter Amount (₦)</ThemedText>
+                    <TextInput
+                        style={[styles.input, { color: colors.text, borderColor: colors.primary }]}
+                        placeholder="0.00"
+                        placeholderTextColor={colors.textSecondary}
+                        keyboardType="numeric"
+                        value={amount}
+                        onChangeText={(text) => setAmount(text)}
+                        autoFocus
+                    />
 
-                <ThemedText style={[styles.label, { color: colors.textSecondary, marginTop: 32 }]}>Select Method</ThemedText>
+                    <ThemedText style={[styles.label, { color: colors.textSecondary, marginTop: 32 }]}>Select Method</ThemedText>
 
-                <TouchableOpacity
-                    style={[styles.methodCard, { backgroundColor: colors.surface, borderColor: method === 'card' ? colors.primary : 'transparent', borderWidth: 1 }]}
-                    onPress={() => setMethod('card')}
-                >
-                    <View style={[styles.iconBox, { backgroundColor: isDark ? 'rgba(204, 255, 0, 0.1)' : 'rgba(123, 184, 0, 0.1)' }]}>
-                        <CreditCard size={24} color={colors.primary} />
-                    </View>
-                    <View style={styles.methodInfo}>
-                        <ThemedText type="defaultSemiBold">Debit Card</ThemedText>
-                        <ThemedText style={[styles.subtext, { color: colors.textSecondary }]}>Instant funding</ThemedText>
-                    </View>
-                    <View style={[styles.radio, { borderColor: method === 'card' ? colors.primary : colors.textSecondary }]}>
-                        {method === 'card' && <View style={[styles.radioInner, { backgroundColor: colors.primary }]} />}
-                    </View>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.methodCard, { backgroundColor: colors.surface, borderColor: method === 'card' ? colors.primary : 'transparent', borderWidth: 1 }]}
+                        onPress={() => {
+                            setMethod('card');
+                            Keyboard.dismiss();
+                        }}
+                    >
+                        <View style={[styles.iconBox, { backgroundColor: isDark ? 'rgba(204, 255, 0, 0.1)' : 'rgba(123, 184, 0, 0.1)' }]}>
+                            <CreditCard size={24} color={colors.primary} />
+                        </View>
+                        <View style={styles.methodInfo}>
+                            <ThemedText type="defaultSemiBold">Debit Card</ThemedText>
+                            <ThemedText style={[styles.subtext, { color: colors.textSecondary }]}>Instant funding</ThemedText>
+                        </View>
+                        <View style={[styles.radio, { borderColor: method === 'card' ? colors.primary : colors.textSecondary }]}>
+                            {method === 'card' && <View style={[styles.radioInner, { backgroundColor: colors.primary }]} />}
+                        </View>
+                    </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[styles.methodCard, { backgroundColor: colors.surface, borderColor: method === 'bank' ? colors.primary : 'transparent', borderWidth: 1 }]}
-                    onPress={() => setMethod('bank')}
-                >
-                    <View style={[styles.iconBox, { backgroundColor: isDark ? 'rgba(204, 255, 0, 0.1)' : 'rgba(123, 184, 0, 0.1)' }]}>
-                        <Banknote size={24} color={colors.primary} />
-                    </View>
-                    <View style={styles.methodInfo}>
-                        <ThemedText type="defaultSemiBold">Bank Transfer</ThemedText>
-                        <ThemedText style={[styles.subtext, { color: colors.textSecondary }]}>Direct deposit</ThemedText>
-                    </View>
-                    <View style={[styles.radio, { borderColor: method === 'bank' ? colors.primary : colors.textSecondary }]}>
-                        {method === 'bank' && <View style={[styles.radioInner, { backgroundColor: colors.primary }]} />}
-                    </View>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.methodCard, { backgroundColor: colors.surface, borderColor: method === 'bank' ? colors.primary : 'transparent', borderWidth: 1 }]}
+                        onPress={() => {
+                            setMethod('bank');
+                            Keyboard.dismiss();
+                        }}
+                    >
+                        <View style={[styles.iconBox, { backgroundColor: isDark ? 'rgba(204, 255, 0, 0.1)' : 'rgba(123, 184, 0, 0.1)' }]}>
+                            <Banknote size={24} color={colors.primary} />
+                        </View>
+                        <View style={styles.methodInfo}>
+                            <ThemedText type="defaultSemiBold">Bank Transfer</ThemedText>
+                            <ThemedText style={[styles.subtext, { color: colors.textSecondary }]}>Direct deposit</ThemedText>
+                        </View>
+                        <View style={[styles.radio, { borderColor: method === 'bank' ? colors.primary : colors.textSecondary }]}>
+                            {method === 'bank' && <View style={[styles.radioInner, { backgroundColor: colors.primary }]} />}
+                        </View>
+                    </TouchableOpacity>
 
-                <View style={styles.spacer} />
+                    <View style={styles.spacer} />
 
-                <Button title={`Top Up ₦${amount || '0.00'}`} onPress={() => router.back()} />
-            </View>
+                    <Button
+                        title={`Top Up ₦${amount || '0.00'}`}
+                        onPress={() => {
+                            Keyboard.dismiss();
+                            router.back();
+                        }}
+                    />
+                </View>
+            </TouchableWithoutFeedback>
         </SafeAreaView>
     );
 }

@@ -1,4 +1,4 @@
-import { View, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, ArrowDown } from 'lucide-react-native';
@@ -76,68 +76,70 @@ export default function SwapScreen() {
                 <View style={{ width: 24 }} />
             </View>
 
-            <View style={styles.content}>
-                {/* From Card */}
-                <View style={[styles.card, { backgroundColor: colors.surface }]}>
-                    <View style={styles.row}>
-                        <ThemedText style={{ color: colors.textSecondary }}>From</ThemedText>
-                        <View style={styles.currencyBadge}>
-                            <ThemedText style={styles.flag}>{isNairaToUsd ? '🇳🇬' : '🇺🇸'}</ThemedText>
-                            <ThemedText type="defaultSemiBold">{fromCurrency}</ThemedText>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={styles.content}>
+                    {/* From Card */}
+                    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+                        <View style={styles.row}>
+                            <ThemedText style={{ color: colors.textSecondary }}>From</ThemedText>
+                            <View style={styles.currencyBadge}>
+                                <ThemedText style={styles.flag}>{isNairaToUsd ? '🇳🇬' : '🇺🇸'}</ThemedText>
+                                <ThemedText type="defaultSemiBold">{fromCurrency}</ThemedText>
+                            </View>
                         </View>
+                        <TextInput
+                            style={[styles.input, { color: colors.text }]}
+                            placeholder="0.00"
+                            placeholderTextColor={colors.textSecondary}
+                            keyboardType="numeric"
+                            value={amount}
+                            onChangeText={setAmount}
+                        />
+                        <ThemedText style={{ color: colors.textSecondary, fontSize: 12 }}>
+                            Balance: {isNairaToUsd ? `₦${ngnBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `$${usdBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                        </ThemedText>
                     </View>
-                    <TextInput
-                        style={[styles.input, { color: colors.text }]}
-                        placeholder="0.00"
-                        placeholderTextColor={colors.textSecondary}
-                        keyboardType="numeric"
-                        value={amount}
-                        onChangeText={setAmount}
-                    />
-                    <ThemedText style={{ color: colors.textSecondary, fontSize: 12 }}>
-                        Balance: {isNairaToUsd ? `₦${ngnBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `$${usdBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                    </ThemedText>
-                </View>
 
-                {/* Swap Icon */}
-                <View style={styles.swapIconWrapper}>
-                    <TouchableOpacity
-                        onPress={toggleSwap}
-                        activeOpacity={0.8}
-                        style={[styles.swapIcon, { backgroundColor: colors.primary, borderColor: colors.background }]}
-                    >
-                        <ArrowDown size={24} color="#000" />
-                    </TouchableOpacity>
-                </View>
+                    {/* Swap Icon */}
+                    <View style={styles.swapIconWrapper}>
+                        <TouchableOpacity
+                            onPress={toggleSwap}
+                            activeOpacity={0.8}
+                            style={[styles.swapIcon, { backgroundColor: colors.primary, borderColor: colors.background }]}
+                        >
+                            <ArrowDown size={24} color="#000" />
+                        </TouchableOpacity>
+                    </View>
 
-                {/* To Card */}
-                <View style={[styles.card, { backgroundColor: colors.surface }]}>
-                    <View style={styles.row}>
-                        <ThemedText style={{ color: colors.textSecondary }}>To</ThemedText>
-                        <View style={styles.currencyBadge}>
-                            <ThemedText style={styles.flag}>{isNairaToUsd ? '🇺🇸' : '🇳🇬'}</ThemedText>
-                            <ThemedText type="defaultSemiBold">{isNairaToUsd ? 'USD' : 'NGN'}</ThemedText>
+                    {/* To Card */}
+                    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+                        <View style={styles.row}>
+                            <ThemedText style={{ color: colors.textSecondary }}>To</ThemedText>
+                            <View style={styles.currencyBadge}>
+                                <ThemedText style={styles.flag}>{isNairaToUsd ? '🇺🇸' : '🇳🇬'}</ThemedText>
+                                <ThemedText type="defaultSemiBold">{isNairaToUsd ? 'USD' : 'NGN'}</ThemedText>
+                            </View>
                         </View>
+                        <TextInput
+                            style={[styles.input, { color: colors.text }]}
+                            value={convertedAmount}
+                            editable={false}
+                        />
+                        <ThemedText style={{ color: colors.textSecondary, fontSize: 12 }}>
+                            Rate: 1 USD = ₦{RATE.toLocaleString()}
+                        </ThemedText>
                     </View>
-                    <TextInput
-                        style={[styles.input, { color: colors.text }]}
-                        value={convertedAmount}
-                        editable={false}
+
+                    <View style={styles.spacer} />
+
+                    <Button
+                        title="Confirm Swap"
+                        onPress={handleConfirmClick}
+                        style={{ opacity: !amount ? 0.5 : 1 }}
+                        loading={false}
                     />
-                    <ThemedText style={{ color: colors.textSecondary, fontSize: 12 }}>
-                        Rate: 1 USD = ₦{RATE.toLocaleString()}
-                    </ThemedText>
                 </View>
-
-                <View style={styles.spacer} />
-
-                <Button
-                    title="Confirm Swap"
-                    onPress={handleConfirmClick}
-                    style={{ opacity: !amount ? 0.5 : 1 }}
-                    loading={false}
-                />
-            </View>
+            </TouchableWithoutFeedback>
 
             <PinModal
                 visible={showPinModal}
