@@ -1,98 +1,263 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { User, Bell, Plus, ArrowRightLeft, MoreHorizontal, Car, Music } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { ThemedText } from '@/components/ui/ThemedText';
+import { GlassView } from '@/components/ui/GlassView';
 
-export default function HomeScreen() {
+import { useRouter } from 'expo-router';
+
+import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
+
+export default function DashboardScreen() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { colors, isDark } = useTheme();
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning,';
+    if (hour < 18) return 'Good Afternoon,';
+    return 'Good Evening,';
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <LinearGradient
+        colors={[isDark ? 'rgba(204, 255, 0, 0.05)' : 'rgba(123, 184, 0, 0.1)', 'transparent']}
+        style={StyleSheet.absoluteFill}
+      />
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <SafeAreaView edges={['top']} style={styles.safeArea}>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.userInfo} onPress={() => router.push('/(tabs)/settings')}>
+              <View style={[styles.avatar, { backgroundColor: isDark ? '#333' : '#eee', borderColor: isDark ? '#444' : '#ddd' }]}>
+                <User size={20} color={colors.primary} />
+              </View>
+              <View>
+                <ThemedText style={[styles.greeting, { color: colors.textSecondary }]}>{getGreeting()}</ThemedText>
+                <ThemedText type="defaultSemiBold">{user?.name || 'User'}</ThemedText>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.iconButton, { backgroundColor: isDark ? '#1E1E1E' : '#f4f4f5' }]} onPress={() => router.push('/notifications')}>
+              <Bell size={24} color={colors.text} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Balance Section */}
+          <View style={styles.balanceSection}>
+            <ThemedText style={[styles.balanceLabel, { color: colors.textSecondary }]}>Total Balance</ThemedText>
+            <ThemedText style={[styles.balanceAmount, { color: colors.text }]}>₦12,450.00</ThemedText>
+            <View style={[styles.pctBadge, { backgroundColor: isDark ? 'rgba(204, 255, 0, 0.1)' : 'rgba(123, 184, 0, 0.1)', borderColor: isDark ? 'rgba(204, 255, 0, 0.2)' : 'rgba(123, 184, 0, 0.2)' }]}>
+              <ThemedText style={[styles.pctText, { color: colors.primary }]}>+2.5% today</ThemedText>
+            </View>
+          </View>
+
+          {/* Quick Actions */}
+          <View style={styles.actionsContainer}>
+            <ActionButton icon={Plus} label="Top Up" />
+            <ActionButton icon={ArrowRightLeft} label="Send" />
+            <ActionButton icon={MoreHorizontal} label="More" />
+          </View>
+
+          {/* Recent Activity */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <ThemedText type="subtitle">Recent Activity</ThemedText>
+              <TouchableOpacity onPress={() => router.push('/(tabs)/activity')}>
+                <ThemedText style={[styles.seeAll, { color: colors.primary }]}>See All</ThemedText>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.transactions}>
+              <TransactionItem
+                icon={Car}
+                title="Uber Ride"
+                subtitle="Today, 8:45 PM"
+                amount="-₦14.20"
+              />
+              <TransactionItem
+                icon={Music}
+                title="Spotify Premium"
+                subtitle="Yesterday"
+                amount="-₦9.99"
+              />
+              <TransactionItem
+                icon={ArrowRightLeft}
+                title="Salary Received"
+                subtitle="Aug 25"
+                amount="+₦2,500.00"
+                isPositive
+              />
+            </View>
+          </View>
+
+        </ScrollView>
+      </SafeAreaView>
+    </View>
+  );
+}
+
+function ActionButton({ icon: Icon, label }: { icon: any, label: string }) {
+  const { colors, isDark } = useTheme();
+  return (
+    <View style={styles.actionBtnWrapper}>
+      <GlassView style={[styles.actionBtn, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}>
+        <Icon size={24} color={colors.primary} />
+      </GlassView>
+      <ThemedText style={[styles.actionLabel, { color: colors.textSecondary }]}>{label}</ThemedText>
+    </View>
+  );
+}
+
+function TransactionItem({ icon: Icon, title, subtitle, amount, isPositive }: any) {
+  const { colors, isDark } = useTheme();
+  return (
+    <View style={[styles.transactionItem, { backgroundColor: colors.surface, borderColor: isDark ? '#1F1F1F' : '#E4E4E7' }]}>
+      <View style={styles.transactionLeft}>
+        <View style={[styles.transactionIcon, { backgroundColor: isDark ? '#1E1E1E' : '#f4f4f5' }]}>
+          <Icon size={20} color={colors.text} />
+        </View>
+        <View>
+          <ThemedText type="defaultSemiBold">{title}</ThemedText>
+          <ThemedText style={[styles.transactionDate, { color: colors.textSecondary }]}>{subtitle}</ThemedText>
+        </View>
+      </View>
+      <ThemedText style={[styles.amount, isPositive ? { color: colors.success } : { color: colors.text }]}>
+        {amount}
+      </ThemedText>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 24,
+    paddingBottom: 120, // Space for tab bar
+  },
+  header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+  },
+  greeting: {
+    fontSize: 14,
+  },
+  iconButton: {
+    padding: 8,
+    borderRadius: 12,
+  },
+  balanceSection: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  balanceLabel: {
+    fontSize: 14,
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  balanceAmount: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    lineHeight: 60,
+    paddingVertical: 4,
+  },
+  pctBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  pctText: {
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 40,
+  },
+  actionBtnWrapper: {
     alignItems: 'center',
     gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  actionBtn: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  actionLabel: {
+    fontSize: 14,
+  },
+  section: {
+    gap: 16,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  seeAll: {
+
+  },
+  transactions: {
+    gap: 16,
+  },
+  transactionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  transactionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  transactionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  transactionDate: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  amount: {
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
