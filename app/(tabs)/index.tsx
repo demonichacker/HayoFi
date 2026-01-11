@@ -1,5 +1,6 @@
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
-import { User, Bell, Plus, ArrowRightLeft, MoreHorizontal, Car, Music } from 'lucide-react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { User, Bell, Plus, ArrowRightLeft, MoreHorizontal, Car, Music, Eye, EyeOff } from 'lucide-react-native';
+import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -10,11 +11,22 @@ import { useRouter } from 'expo-router';
 
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useWallet } from '@/context/WalletContext';
 
 export default function DashboardScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { colors, isDark } = useTheme();
+  const { ngnBalance, usdBalance } = useWallet();
+  const [isBalanceHidden, setIsBalanceHidden] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const screenWidth = Dimensions.get('window').width;
+  const contentWidth = screenWidth - 48;
+
+  const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const slide = Math.round(event.nativeEvent.contentOffset.x / contentWidth);
+    setActiveSlide(slide);
+  };
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -51,18 +63,55 @@ export default function DashboardScreen() {
 
           {/* Balance Section */}
           <View style={styles.balanceSection}>
-            <ThemedText style={[styles.balanceLabel, { color: colors.textSecondary }]}>Total Balance</ThemedText>
-            <ThemedText style={[styles.balanceAmount, { color: colors.text }]}>₦12,450.00</ThemedText>
-            <View style={[styles.pctBadge, { backgroundColor: isDark ? 'rgba(204, 255, 0, 0.1)' : 'rgba(123, 184, 0, 0.1)', borderColor: isDark ? 'rgba(204, 255, 0, 0.2)' : 'rgba(123, 184, 0, 0.2)' }]}>
-              <ThemedText style={[styles.pctText, { color: colors.primary }]}>+2.5% today</ThemedText>
+            <View style={styles.balanceHeader}>
+              <ThemedText style={[styles.balanceLabel, { color: colors.textSecondary }]}>
+                {activeSlide === 0 ? 'Total Balance (NGN)' : 'Total Balance (USD)'}
+              </ThemedText>
+              <TouchableOpacity onPress={() => setIsBalanceHidden(!isBalanceHidden)} style={styles.eyeBtn}>
+                {isBalanceHidden ? <EyeOff size={16} color={colors.textSecondary} /> : <Eye size={16} color={colors.textSecondary} />}
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onScroll={onScroll}
+              scrollEventThrottle={16}
+              style={{ width: contentWidth }}
+            >
+              {/* NGN Slide */}
+              <View style={{ width: contentWidth, alignItems: 'center' }}>
+                <ThemedText style={[styles.balanceAmount, { color: colors.text }]}>
+                  {isBalanceHidden ? '****' : `₦${ngnBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                </ThemedText>
+                <View style={[styles.pctBadge, { backgroundColor: isDark ? 'rgba(204, 255, 0, 0.1)' : 'rgba(123, 184, 0, 0.1)', borderColor: isDark ? 'rgba(204, 255, 0, 0.2)' : 'rgba(123, 184, 0, 0.2)' }]}>
+                  <ThemedText style={[styles.pctText, { color: colors.primary }]}>+2.5% today</ThemedText>
+                </View>
+              </View>
+
+              {/* USD Slide */}
+              <View style={{ width: contentWidth, alignItems: 'center' }}>
+                <ThemedText style={[styles.balanceAmount, { color: colors.text }]}>
+                  {isBalanceHidden ? '****' : `$${usdBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                </ThemedText>
+                <View style={[styles.pctBadge, { backgroundColor: isDark ? 'rgba(204, 255, 0, 0.1)' : 'rgba(123, 184, 0, 0.1)', borderColor: isDark ? 'rgba(204, 255, 0, 0.2)' : 'rgba(123, 184, 0, 0.2)' }]}>
+                  <ThemedText style={[styles.pctText, { color: colors.primary }]}>+0.0% today</ThemedText>
+                </View>
+              </View>
+            </ScrollView>
+
+            <View style={styles.pagination}>
+              <View style={[styles.dot, { backgroundColor: activeSlide === 0 ? colors.primary : colors.textSecondary }]} />
+              <View style={[styles.dot, { backgroundColor: activeSlide === 1 ? colors.primary : colors.textSecondary }]} />
             </View>
           </View>
 
           {/* Quick Actions */}
           <View style={styles.actionsContainer}>
-            <ActionButton icon={Plus} label="Top Up" />
-            <ActionButton icon={ArrowRightLeft} label="Send" />
-            <ActionButton icon={MoreHorizontal} label="More" />
+            <ActionButton icon={Plus} label="Top Up" onPress={() => router.push('/top-up')} />
+            <ActionButton icon={ArrowRightLeft} label="Send" onPress={() => router.push('/send')} />
+            <ActionButton icon={MoreHorizontal} label="More" onPress={() => router.push('/more')} />
           </View>
 
           {/* Recent Activity */}
@@ -103,15 +152,15 @@ export default function DashboardScreen() {
   );
 }
 
-function ActionButton({ icon: Icon, label }: { icon: any, label: string }) {
+function ActionButton({ icon: Icon, label, onPress }: { icon: any, label: string, onPress: () => void }) {
   const { colors, isDark } = useTheme();
   return (
-    <View style={styles.actionBtnWrapper}>
+    <TouchableOpacity onPress={onPress} style={styles.actionBtnWrapper}>
       <GlassView style={[styles.actionBtn, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}>
         <Icon size={24} color={colors.primary} />
       </GlassView>
       <ThemedText style={[styles.actionLabel, { color: colors.textSecondary }]}>{label}</ThemedText>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -176,11 +225,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 32,
   },
+  balanceHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 8,
+  },
   balanceLabel: {
     fontSize: 14,
-    marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  eyeBtn: {
+    padding: 4,
   },
   balanceAmount: {
     fontSize: 48,
@@ -198,6 +255,16 @@ const styles = StyleSheet.create({
   pctText: {
     fontWeight: '600',
     fontSize: 14,
+  },
+  pagination: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 16,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   actionsContainer: {
     flexDirection: 'row',
