@@ -10,14 +10,27 @@ The app features a **Glassmorphism-inspired design system** with a sophisticated
 
 ## 📱 Key Features
 
-- **🔐 Biometric Authentication**: Secure / Sign In with **Face ID** and Touch ID support using `expo-local-authentication`.
+- **🔐 Biometric Authentication**: Secure Sign In with **Face ID** and Touch ID support using `expo-local-authentication`.
 - **💳 Virtual Cards Hub**: Interactive carousel of virtual Visa/Mastercards. Includes controls to **Freeze Card**, View PIN, and Manage Limits.
 - **🌗 Global Theme Support**: Seamless toggle between **Premium Dark Mode** (default) and **Light Mode**. All components (Status Bar, Tab Bar, Backgrounds) adapt dynamically.
+- **💰 Dual Currency Wallet**: 
+  - Swipe between **Naira (₦)** and **USD ($)** balances on the dashboard.
+  - Real-time balance updates across the app.
+  - Hide/show balance toggle for privacy.
 - **📊 Interactive Dashboard**:
-  - Real-time balance display in **Naira (₦)**.
+  - Real-time balance display with percentage change.
   - Quick action buttons (Top Up, Send, More).
   - "Recent Activity" preview.
-- **🔔 Notifications Center**: A dedicated screen for alerts (Money Received, Security Alerts, etc.) with read/unread states.
+- **💱 Currency Swap**: 
+  - Bi-directional swap between NGN and USD.
+  - 4-digit PIN verification for security.
+  - Success confirmation modal.
+  - Live exchange rate display (1 USD = ₦1,600).
+- **💸 Quick Actions**:
+  - **Top Up**: Add funds via Card or Bank Transfer.
+  - **Send Money**: Transfer to contacts with search.
+  - **More**: Access additional services (Airtime, Bills, Statements).
+- **🔔 Notifications Center**: Dedicated screen for alerts (Money Received, Security Alerts, etc.) with read/unread states.
 - **📜 Activity & Transaction History**: Detailed list of transactions with category icons, date filtering, and search functionality.
 - **🎨 Modern UI/UX**:
   - **Glassmorphism**: Blur effects using `expo-blur`.
@@ -76,15 +89,20 @@ The app features a **Glassmorphism-inspired design system** with a sophisticated
 /app
   ├── (tabs)           # Main tab navigation (Dashboard, Cards, Activity, Settings)
   ├── auth             # Authentication screens (Sign In, Sign Up)
-  ├── _layout.tsx      # Root layout & providers (Theme, Auth)
+  ├── _layout.tsx      # Root layout & providers (Theme, Auth, Wallet)
   ├── notifications.tsx # Independent notification screen
+  ├── top-up.tsx       # Top up wallet screen
+  ├── send.tsx         # Send money screen
+  ├── more.tsx         # More services menu
+  ├── swap.tsx         # Currency swap screen
   └── index.tsx        # Landing/Splash screen
 /components
-  ├── ui               # Reusable UI atoms (Button, ThemedText, GlassView)
+  ├── ui               # Reusable UI atoms (Button, ThemedText, GlassView, PinModal, SuccessModal)
   └── CreditCard.tsx   # Complex Credit Card component
 /context
   ├── AuthContext.tsx  # Handles login session
-  └── ThemeContext.tsx # Handles Light/Dark mode state
+  ├── ThemeContext.tsx # Handles Light/Dark mode state
+  └── WalletContext.tsx # Manages NGN/USD balances and swap transactions
 /constants
   └── Colors.ts        # Design system color tokens
 ```
