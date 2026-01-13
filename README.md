@@ -111,9 +111,8 @@ The app features a **Glassmorphism-inspired design system** with a sophisticated
 
 ## 🖼 Screenshots
 
-| Dashboard (Dark) | Cards (Light) | Activity |
-|:---:|:---:|:---:|
-| *(Add Screenshot)* | *(Add Screenshot)* | *(Add Screenshot)* |
+![alt text](https://file%2B.vscode-resource.vscode-cdn.net/Users/io/Library/Containers/ru.keepcoder.Telegram/Data/tmp/IMAGE%202026-01-13%201%3A53%3A16%E2%80%AFAM.jpg?version%3D1768265600553)
+
 
 ---
 
