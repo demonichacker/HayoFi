@@ -1,4 +1,4 @@
-import { View, StyleSheet, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, User, Search } from 'lucide-react-native';
@@ -7,12 +7,14 @@ import { ThemedText } from '@/components/ui/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { useTheme } from '@/context/ThemeContext';
 import { useState } from 'react';
+import { useWallet } from '@/context/WalletContext';
 
 export default function SendScreen() {
     const router = useRouter();
     const { colors, isDark } = useTheme();
     const [amount, setAmount] = useState('');
     const [recipient, setRecipient] = useState('');
+    const { ngnBalance, subtractFromNgn } = useWallet();
 
     const recentContacts = [
         { id: '1', name: 'Alex M', tag: '@alexdev' },
@@ -80,7 +82,21 @@ export default function SendScreen() {
                         title={`Send ₦${amount || '0.00'}`}
                         onPress={() => {
                             Keyboard.dismiss();
-                            router.back();
+                            const val = parseFloat(amount);
+                            if (!val || isNaN(val) || val <= 0) {
+                                Alert.alert('Invalid amount', 'Please enter a valid amount to send.');
+                                return;
+                            }
+                            if (ngnBalance < val) {
+                                Alert.alert('Insufficient funds', 'You do not have enough NGN balance to send that amount.');
+                                return;
+                            }
+                            const ok = subtractFromNgn(val);
+                            if (ok) {
+                                router.back();
+                            } else {
+                                Alert.alert('Error', 'Could not complete transaction.');
+                            }
                         }}
                     />
                 </View>

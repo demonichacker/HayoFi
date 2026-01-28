@@ -4,6 +4,7 @@ import { createContext, useContext, useState, PropsWithChildren } from 'react';
 type User = {
     name: string;
     email: string;
+    tier?: number;
 } | null;
 
 type AuthContextType = {
@@ -11,35 +12,33 @@ type AuthContextType = {
     signIn: (email: string) => void;
     signUp: (name: string, email: string) => void;
     signOut: () => void;
+    updateUserTier: (tier: number) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: PropsWithChildren) {
-    const [user, setUser] = useState<User>({
-        name: 'Ian O', // Default fallback for demo
-        email: 'ian@hayofi.com',
-    });
+    const [user, setUser] = useState<User>(null);
 
     const signIn = (email: string) => {
         // In a real app, you'd fetch user details here.
-        // For now, we keep the existing or default user, just updating email if provided
-        setUser((prev) => ({
-            name: prev?.name || 'User',
-            email: email,
-        }));
+        setUser({ name: 'User', email, tier: 1 });
     };
 
     const signUp = (name: string, email: string) => {
-        setUser({ name, email });
+        setUser({ name, email, tier: 1 });
     };
 
     const signOut = () => {
         setUser(null);
     };
 
+    const updateUserTier = (tier: number) => {
+        setUser((prev) => prev ? { ...prev, tier } : null);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, signIn, signUp, signOut }}>
+        <AuthContext.Provider value={{ user, signIn, signUp, signOut, updateUserTier }}>
             {children}
         </AuthContext.Provider>
     );

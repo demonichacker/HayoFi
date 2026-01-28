@@ -5,6 +5,8 @@ type WalletContextType = {
     usdBalance: number;
     updateBalances: (ngnAmount: number, usdAmount: number) => void;
     executeSwap: (fromCurrency: 'NGN' | 'USD', amount: number, rate: number) => void;
+    addToNgn: (amount: number) => void;
+    subtractFromNgn: (amount: number) => boolean;
 };
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -36,8 +38,22 @@ export function WalletProvider({ children }: PropsWithChildren) {
         }
     };
 
+    const addToNgn = (amount: number) => {
+        if (amount <= 0) return;
+        setNgnBalance(prev => prev + amount);
+    };
+
+    const subtractFromNgn = (amount: number) => {
+        if (amount <= 0) return false;
+        if (ngnBalance >= amount) {
+            setNgnBalance(prev => prev - amount);
+            return true;
+        }
+        return false;
+    };
+
     return (
-        <WalletContext.Provider value={{ ngnBalance, usdBalance, updateBalances, executeSwap }}>
+        <WalletContext.Provider value={{ ngnBalance, usdBalance, updateBalances, executeSwap, addToNgn, subtractFromNgn }}>
             {children}
         </WalletContext.Provider>
     );

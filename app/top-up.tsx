@@ -7,12 +7,14 @@ import { ThemedText } from '@/components/ui/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { useTheme } from '@/context/ThemeContext';
 import { useState } from 'react';
+import { useWallet } from '@/context/WalletContext';
 
 export default function TopUpScreen() {
     const router = useRouter();
     const { colors, isDark } = useTheme();
     const [amount, setAmount] = useState('');
     const [method, setMethod] = useState<'card' | 'bank'>('card');
+    const { addToNgn } = useWallet();
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -83,6 +85,12 @@ export default function TopUpScreen() {
                         title={`Top Up ₦${amount || '0.00'}`}
                         onPress={() => {
                             Keyboard.dismiss();
+                            const val = parseFloat(amount);
+                            if (!val || isNaN(val) || val <= 0) {
+                                router.back();
+                                return;
+                            }
+                            addToNgn(val);
                             router.back();
                         }}
                     />

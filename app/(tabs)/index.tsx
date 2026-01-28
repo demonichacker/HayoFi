@@ -110,7 +110,7 @@ export default function DashboardScreen() {
           {/* Quick Actions */}
           <View style={styles.actionsContainer}>
             <ActionButton icon={Plus} label="Top Up" onPress={() => router.push('/top-up')} />
-            <ActionButton icon={ArrowRightLeft} label="Send" onPress={() => router.push('/send')} />
+            <ActionButton icon={ArrowRightLeft} label="Send" onPress={() => router.push('/international-send/send-type')} />
             <ActionButton icon={MoreHorizontal} label="More" onPress={() => router.push('/more')} />
           </View>
 
